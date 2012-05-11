@@ -5,7 +5,7 @@ import cherrypy
 from genshi.filters import HTMLFormFiller
 
 from formencode import Invalid
-from model import Request,AirportStation
+from model import Request,AirportStation,PersonalStation
 from form  import RequestForm
 from lib import template
 from geolookup import GeoLookup
@@ -14,6 +14,7 @@ class Root(object):
 	
 	def __init__(self,data):
 		self.data = data
+		self.response = {}
 		
 	@cherrypy.expose
 	@template.output('index.html')
@@ -32,10 +33,10 @@ class Root(object):
 				#store request digest in pickle file
 				data = form.to_python(data)
 				request = Request(**data)
-				self.data[request.id] = request
+				self.data['request'][request.id] = request
 				
-				#lookup request
-				GeoLookup(request.latitude,request.longitude).writeData()
+				#geolookup request
+				self.data['response'] = GeoLookup(request.latitude,request.longitude).toModel()
 				
 				raise cherrypy.HTTPRedirect('/station')
 			except Invalid, e:
@@ -47,7 +48,8 @@ class Root(object):
 	
 	@cherrypy.expose
 	@template.output('station.html')
-	def station(selfcancel=False, **data):pass
+	def station(self,cancel=False):
+		return template.render(airports=self.data['response']['airports'],pwstations=self.data['response']['pwstations'])
 		
 
 def main(filename):
@@ -60,7 +62,7 @@ def main(filename):
 		finally:
 			fileobj.close()
 	else:
-		data = {}
+		data = {'request':{},'response':{}}
 	
 	def _save_data():
 		fileobj = open(filename,'wb')

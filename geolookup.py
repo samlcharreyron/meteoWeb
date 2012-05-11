@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import json,urllib2,os,csv
+from model import AirportStation,PersonalStation
 
 class GeoLookup:
 	
@@ -41,6 +42,16 @@ class GeoLookup:
 				pwsWriter.writerow((pws['id'],pws['distance_km']))
 		finally:
 			f2.close()
+	
+	def toModel(self):
+		# make an object for each station
+		airports = []
+		pwstations = []
+		for airport in self.data["airportStations"]:
+			airports.append(AirportStation(airport['city'],airport['icao'],airport['lat'],airport['lon']))
+		for pws in self.data["personalStations"]:
+			pwstations.append(PersonalStation(pws['id'],pws['distance_km']))
+		return {'airports': airports, 'pwstations': pwstations}	
 	
 if __name__ == '__main__':
 	#latitude = float(raw_input("Enter latitude:"))

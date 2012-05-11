@@ -6,7 +6,41 @@
 <head>
 	<title>Stations</title>
 </head>
-<body>
-	<p>This is where the results will go</p>
+<body class="stations">
+	<div id="header">
+		<h1>Airport Weather Stations</h1>
+	</div>
+	
+	<table py:if="airports">
+		<tr>
+			<th>City</th>
+			<th>ICAO code</th>
+			<th>Latitude</th>
+			<th>Longitude</th>
+		</tr>			
+		<tr py:for="airport in airports">
+			<td>${airport.city}</td>
+			<td>${airport.icao}</td>
+			<td>${airport.latitude}</td>
+			<td>${airport.longitude}</td>
+		</tr>
+	</table>
+	
+	<div id="header">
+		<h1>Personal Weather Stations</h1>
+	</div>
+	
+	<table py:if="pwstations">
+		<tr>
+			<th>Station ID</th>
+			<th>Distance (in km)</th>
+		</tr>			
+		<tr py:for="pws in pwstations">
+			<td>${pws.stationid}</td>
+			<td>${pws.distance}</td>
+		</tr>
+	</table>
+	
+	
 </body>
 </html>

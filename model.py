@@ -26,3 +26,12 @@ class AirportStation(object):
 		return ''''Coordinates: 
 		city: %s' ICAO code: %s''' % (self.city,self.icao)
 
+class PersonalStation(object):
+
+	def __init__(self,stationid,distance):
+		self.stationid = stationid
+		self.distance = distance
+
+	def __repr__(self):
+		return ''''Coordinates: 
+		station id: %s' distance (km): %s''' % (self.stationid,self.distance)
