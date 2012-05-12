@@ -8,22 +8,17 @@ from formencode import Invalid
 from model import Request,AirportStation,PersonalStation
 from form  import RequestForm
 from lib import template
-from geolookup import GeoLookup
+from geolookup import GeoLookup,GeoLookupError
 
 class Root(object):
 	
 	def __init__(self,data):
 		self.data = data
-		self.response = {}
+		self.response = {}		
 		
 	@cherrypy.expose
 	@template.output('index.html')
-	def index(self):
-		return template.render(title="Weather Scraper")
-		
-	@cherrypy.expose
-	@template.output('submit.html')
-	def submit(self, cancel=False, **data):
+	def index(self, cancel=False, **data):
 		if cherrypy.request.method == 'POST':
 			if cancel:
 				raise cherrypy.HTTPRedirect('/')
@@ -36,15 +31,21 @@ class Root(object):
 				self.data['request'][request.id] = request
 				
 				#geolookup request
-				self.data['response'] = GeoLookup(request.latitude,request.longitude).toModel()
+				try:
+					self.data['response'] = GeoLookup(request.latitude,request.longitude).toModel()
+					raise cherrypy.HTTPRedirect('/station')
+				except Exception as ers:
+					flasherrors = str(ers)
+					errors = {}
+					#raise cherrypy.HTTPRedirect('/')
 				
-				raise cherrypy.HTTPRedirect('/station')
 			except Invalid, e:
 				errors = e.unpack_errors()
 		else:
 			errors = {}
+			flasherrors = ''
 			
-		return template.render(errors=errors) | HTMLFormFiller(data=data)
+		return template.render(errors=errors,flasherrors=flasherrors) | HTMLFormFiller(data=data)
 	
 	@cherrypy.expose
 	@template.output('station.html')
@@ -81,9 +82,9 @@ def main(filename):
 	    })
 	
 	cherrypy.quickstart(Root(data), '/', {
-		        '/media': {
+		        '/static/css': {
 		            'tools.staticdir.on': True,
-		            'tools.staticdir.dir': 'static'
+		            'tools.staticdir.dir': 'static/css'
 		        }
 		})
 		

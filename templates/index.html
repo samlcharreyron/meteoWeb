@@ -2,17 +2,45 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
-	<xi:include href="layout.html" />
-
+  <xi:include href="layout.html" />
   <head>
-    <title>$title</title>
+    <title>Weather Searcher</title>
   </head>
-  <body class="index">
-    <div id="header">
-      <h1>$title</h1>
-    </div>
-	
-	<p><a class="action" href="/submit/">Look up weather station</a></p>
-	
+  <body class="submit">
+      <h1>Weather Scraper</h1>
+	<span py:if="flasherrors" class="flasherror"> ${flasherrors}</span>
+    <form action="" method="post">
+      <table summary=""><tbody><tr>
+        <th><label for="latitude">Latitude:</label></th>
+        <td>
+			<input type="text" id="latitude" name="latitude" />
+			<span py:if="'latitude' in errors" class="error">${errors.latitude}</span>
+		</td>
+		</tr><tr>
+		<th><label for="longitude">Longitude:</label></th>
+        <td>
+			<input type="text" id="longitude" name="longitude" />
+			<span py:if="'longitude' in errors" class="error">${errors.longitude}</span>
+		</td>
+      </tr><tr>
+        <th><label for="dateS">Start Date:</label></th>
+        <td>
+			<input type="text" id="dateS" name="dateS" />
+			<span py:if="'dateS' in errors" class="error">${errors.dateS}</span>
+		</td>
+      </tr><tr>
+        <th><label for="dateE">End Date:</label></th>
+        <td>
+			<input type="text" name="dateE" />
+			<span py:if="'dateE' in errors" class="error">${errors.dateE}</span>
+		</td>
+      </tr><tr>
+        <td></td>
+        <td>
+          <input type="submit" value="Search" />
+        </td>
+      </tr></tbody></table>
+    </form>
+
   </body>
 </html>
