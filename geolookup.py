@@ -65,10 +65,10 @@ if __name__ == '__main__':
 	#latitude = float(raw_input("Enter latitude:"))
 	#longitude = float(raw_input("Enter longitude:"))
 	
-	latitude = 80
-	longitude = 170
-	#latitude = 37.776289
-	#longitude = -122.395234
+	#latitude = 80
+	#longitude = 170
+	latitude = 37.776289
+	longitude = -122.395234
 	#fileName = str(raw_input("Enter filename:"))
 	
 	#Initialize lookup class

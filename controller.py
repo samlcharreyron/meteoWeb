@@ -17,11 +17,9 @@ class Root(object):
 		self.response = {}		
 		
 	@cherrypy.expose
-	@template.output('index.html')
+	@template.output('submit.html')
 	def index(self, cancel=False, **data):
 		if cherrypy.request.method == 'POST':
-			if cancel:
-				raise cherrypy.HTTPRedirect('/')
 			form = RequestForm()
 			try:
 				
@@ -34,16 +32,17 @@ class Root(object):
 				try:
 					self.data['response'] = GeoLookup(request.latitude,request.longitude).toModel()
 					raise cherrypy.HTTPRedirect('/station')
-				except Exception as ers:
-					flasherrors = str(ers)
+				except GeoLookupError as ers:
+					flasherrors = "Unable to perform search for this location"
 					errors = {}
 					#raise cherrypy.HTTPRedirect('/')
 				
 			except Invalid, e:
 				errors = e.unpack_errors()
+				flasherrors = "FLSHerrors" 
 		else:
 			errors = {}
-			flasherrors = ''
+			flasherrors = "FLSHNOTPOST"
 			
 		return template.render(errors=errors,flasherrors=flasherrors) | HTMLFormFiller(data=data)
 	
@@ -51,7 +50,11 @@ class Root(object):
 	@template.output('station.html')
 	def station(self,cancel=False):
 		return template.render(airports=self.data['response']['airports'],pwstations=self.data['response']['pwstations'])
-		
+	
+	@cherrypy.expose
+	@template.output('test.html')
+	def test(self,cancel=False):
+		return "template.render()"
 
 def main(filename):
 				
@@ -85,7 +88,11 @@ def main(filename):
 		        '/static/css': {
 		            'tools.staticdir.on': True,
 		            'tools.staticdir.dir': 'static/css'
-		        }
+		        },
+				'/static/js': {
+					'tools.staticdir.on': True,
+					'tools.staticdir.dir': 'static/js'
+				}
 		})
 		
 if __name__ == '__main__':

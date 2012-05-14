@@ -8,21 +8,35 @@
         Weather Scraper<py:if test="title">: ${title}</py:if>
       </title>
       ${select('*[local-name()!="title"]')}
-    <link rel="stylesheet" type="text/css" media="all" href="${url('/static/css/boostrap.css')}" />
+      <link rel="stylesheet" type="text/css" media="all" href="static/css/bootstrap.css" />
     </head>
   </py:match>
 
   <py:match path="body" once="true">
     <body py:attrs="select('@*')"><div id="wrap">
       <div id="header">
+		<div class="topbar">
+	      <div class="fill">
+	        <div class="container">
+	          <a class="brand" href="#">Weather Scraper</a>
+	          <ul class="nav">
+	            <li class="active"><a href="/">Home</a></li>
+	            <li><a href="#about">About</a></li>
+	            <li><a href="#contact">Contact</a></li>
+	          </ul>
+	        </div>
+	      </div>
+	    </div>
       </div>
       <div id="content">
         ${select('*|text()')}
       </div>
       <div id="footer">
         <hr />
-        <p class="legalese">© 2012 Samuel Charreyron and Stewart Jackson</p>
+        <p class="legalese">&copy; 2012 Samuel Charreyron, Stewart Jackson</p>
       </div>
+	  <script src="static/js/jquery.js"></script>
+	  <script src="static/js/bootstrap-alert.js"></script>
     </div>
   </body>
   </py:match>
