@@ -8,25 +8,18 @@ from formencode import Invalid
 from model import Request,AirportStation,PersonalStation
 from form  import RequestForm
 from lib import template
-from geolookup import GeoLookup
+from geolookup import GeoLookup,GeoLookupError
 
 class Root(object):
 	
 	def __init__(self,data):
 		self.data = data
-		self.response = {}
-		
-	@cherrypy.expose
-	@template.output('index.html')
-	def index(self):
-		return template.render(title="Weather Scraper")
+		self.response = {}		
 		
 	@cherrypy.expose
 	@template.output('submit.html')
-	def submit(self, cancel=False, **data):
+	def index(self, cancel=False, **data):
 		if cherrypy.request.method == 'POST':
-			if cancel:
-				raise cherrypy.HTTPRedirect('/')
 			form = RequestForm()
 			try:
 				
@@ -36,21 +29,32 @@ class Root(object):
 				self.data['request'][request.id] = request
 				
 				#geolookup request
-				self.data['response'] = GeoLookup(request.latitude,request.longitude).toModel()
+				try:
+					self.data['response'] = GeoLookup(request.latitude,request.longitude).toModel()
+					raise cherrypy.HTTPRedirect('/station')
+				except GeoLookupError as ers:
+					flasherrors = "Unable to perform search for this location"
+					errors = {}
+					#raise cherrypy.HTTPRedirect('/')
 				
-				raise cherrypy.HTTPRedirect('/station')
 			except Invalid, e:
 				errors = e.unpack_errors()
+				flasherrors = "FLSHerrors" 
 		else:
 			errors = {}
+			flasherrors = "FLSHNOTPOST"
 			
-		return template.render(errors=errors) | HTMLFormFiller(data=data)
+		return template.render(errors=errors,flasherrors=flasherrors) | HTMLFormFiller(data=data)
 	
 	@cherrypy.expose
 	@template.output('station.html')
 	def station(self,cancel=False):
 		return template.render(airports=self.data['response']['airports'],pwstations=self.data['response']['pwstations'])
-		
+	
+	@cherrypy.expose
+	@template.output('test.html')
+	def test(self,cancel=False):
+		return "template.render()"
 
 def main(filename):
 				
@@ -81,10 +85,14 @@ def main(filename):
 	    })
 	
 	cherrypy.quickstart(Root(data), '/', {
-		        '/media': {
+		        '/static/css': {
 		            'tools.staticdir.on': True,
-		            'tools.staticdir.dir': 'static'
-		        }
+		            'tools.staticdir.dir': 'static/css'
+		        },
+				'/static/js': {
+					'tools.staticdir.on': True,
+					'tools.staticdir.dir': 'static/js'
+				}
 		})
 		
 if __name__ == '__main__':

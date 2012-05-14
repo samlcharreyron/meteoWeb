@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 import json,urllib2,os,csv
 from model import AirportStation,PersonalStation
-
+class GeoLookupError(Exception):
+	def __init__(self,value):
+		self.value = value
+	def __str__(self):
+		return "Unable to perform search for this location. Reason: " + repr(self.value)
+		
 class GeoLookup:
 	
 	def __init__(self,latitude,longitude):
@@ -16,8 +21,11 @@ class GeoLookup:
 		json_string = lookupPage.read()
 		parsed_json = json.loads(json_string)
 		
-		airportStations = parsed_json['location']['nearby_weather_stations']['airport']['station']
-		personalStations = parsed_json['location']['nearby_weather_stations']['pws']['station']
+		try:
+			airportStations = parsed_json['location']['nearby_weather_stations']['airport']['station']
+			personalStations = parsed_json['location']['nearby_weather_stations']['pws']['station']
+		except Exception as e:
+			raise GeoLookupError(e)
 		
 		return {"airportStations": airportStations,"personalStations": personalStations}
 		
@@ -57,6 +65,8 @@ if __name__ == '__main__':
 	#latitude = float(raw_input("Enter latitude:"))
 	#longitude = float(raw_input("Enter longitude:"))
 	
+	#latitude = 80
+	#longitude = 170
 	latitude = 37.776289
 	longitude = -122.395234
 	#fileName = str(raw_input("Enter filename:"))
