@@ -1,45 +1,154 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:py="http://genshi.edgewall.org/" lang="en">
+      xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="layout.html" />
   <head>
     <title>Weather Searcher</title>
-  </head>
-  	<body class="submit">
-	<span py:if="flasherrors" class="flasherror"> ${flasherrors}</span>
-    <form action="" method="post">
-      <table summary="" class = "table"><tbody><tr>
-        <th><label for="latitude">Latitude:</label></th>
-        <td>
-			<input type="text" id="latitude" name="latitude" />
-			<span py:if="'latitude' in errors" class="error">${errors.latitude}</span>
-		</td>
-		</tr><tr>
-		<th><label for="longitude">Longitude:</label></th>
-        <td>
-			<input type="text" id="longitude" name="longitude" />
-			<span py:if="'longitude' in errors" class="error">${errors.longitude}</span>
-		</td>
-      </tr><tr>
-        <th><label for="dateS">Start Date:</label></th>
-        <td>
-			<input type="text" id="dateS" name="dateS" />
-			<span py:if="'dateS' in errors" class="error">${errors.dateS}</span>
-		</td>
-      </tr><tr>
-        <th><label for="dateE">End Date:</label></th>
-        <td>
-			<input type="text" name="dateE" />
-			<span py:if="'dateE' in errors" class="error">${errors.dateE}</span>
-		</td>
-      </tr><tr>
-        <td></td>
-        <td>
-          <input type="submit" value="Search" />
-        </td>
-      </tr></tbody></table>
-    </form>
+	<style type="text/css">
+      body {
+        padding-top: 	60px;
+		height: 100%; margin: 0; padding: 0
+		#map_canvas { height: 100% }
+      }
+    
+    </style>
+	<!-- Google Maps API -->
+	<script type="text/javascript"
+	      src="https://maps.googleapis.com/maps/api/js?sensor=false">
+	</script>
+	<script type="text/javascript">
+		  <!--
+		  var map;
+		  var marker;
+		  var latitude;
+		  var longitude;
+		
+	      function initialize() {
+			var latlng = new google.maps.LatLng(document.getElementById("latitude").value,document.getElementById("longitude").value);
+	        var myOptions = {
+	          center: latlng,
+	          zoom: 10,
+	          mapTypeId: google.maps.MapTypeId.ROADMAP
+	        };
+	        
+			map = new google.maps.Map(document.getElementById("map_canvas"),
+	            myOptions);
+			marker = new google.maps.Marker({position:latlng,map:map});
+			addMarkers();
+			}
+				
+		function recenter(){
+			map.panTo(new google.maps.LatLng(document.getElementById("latitude").value,document.getElementById("longitude").value));
+			alert("Recentered");
+			};
+		
+		function addMarkers() {
+			var airportLatitudes = $( "td.airport-latitude");
+			var airportLongitudes = $( "td.airport-longitude");
+			var ll;
+			var mark;
+			// Create our "tiny" marker icon
+			var blueIcon = 'http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png';
+			
+			for (i=0; i< airportLatitudes.length ;i++) {
+				ll = new google.maps.LatLng(airportLatitudes[i].innerHTML,airportLongitudes[i].innerHTML);
+				mark = new google.maps.Marker({position:ll,map:map,icon:blueIcon});
+			}
 
+			
+		}
+			
+			
+		
+		google.maps.event.addDomListener(document.getElementById("coordinates"), 'load', recenter());
+	    
+	-->
+			
+	</script>
+  </head>
+  <body onload="initialize()">
+	<div class="container">
+		<div class="page-header">
+			<h1>The Weather Scraper</h1>
+			<p>The Weather Scraper is an easy tool to find weather stations near a chosen location and to easily obtain historical weather data from Weather Underground.</p>
+		</div> <!-- App introduction -->
+		<div py:if="flasherrors" class="alert alert-error">
+				<button class="close" data-dismiss="alert">x</button>
+				<strong>${flasherrors}</strong>
+		</div> <!-- flash alerts -->
+		
+		<div class="row">
+			<div class="span4">
+	    		<form class="well" action="" method='POST'>
+			        <label for="latitude">Latitude:</label>
+						<input type="text" class="span3" placeholder="Type something" id="latitude" name="latitude" />
+						<span py:if="'latitude' in errors" class="error">${errors.latitude}</span>
+					<label for="longitude">Longitude:</label>
+						<input type="text" class="span3" placeholder="Type something" id="longitude" name="longitude" />
+						<span py:if="'longitude' in errors" class="error">${errors.longitude}</span>
+			        <label for="dateS">Start Date:</label>
+						<input type="text" class="span3" placeholder="Type something" id="dateS" name="dateS" />
+						<span py:if="'dateS' in errors" class="error">${errors.dateS}</span>
+			        <label for="dateE">End Date:</label>
+						<input type="text" class="span3" placeholder="Type something" name="dateE" />
+						<span py:if="'dateE' in errors" class="error">${errors.dateE}</span>
+			          <input class="btn btn-primary" type="submit" value="Search"/>
+			   	</form>
+			</div>
+			<div py:if="coordinates" class="span8" id="coordinates">
+				<div id="map_canvas" style="width: 480px; height: 300px">Map</div>
+			</div> <!-- Map is loaded here -->
+		</div>
+		<div py:if="response" class="row" style="margin-top:20px">
+			<div class="span6">
+				<div class="accordion" id="accordion2">
+					<div py:if="response['airports']" class="accordion-group">
+						<div class="accordion-heading"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">Airport Weather Stations</a></div>
+						<div id="collapseOne" class="accordion-body collapse in" style="height: auto; ">
+							<div class="accordion-inner"> 
+								<table>
+									<tr>
+										<th>City</th>
+										<th>ICAO code</th>
+										<th>Latitude</th>
+										<th>Longitude</th>
+									</tr>			
+									<tr py:for="airport in response['airports']">
+										<td>${airport.city}</td>
+										<td>${airport.icao}</td>
+										<td class="airport-latitude">${airport.latitude}</td>
+										<td class="airport-longitude">${airport.longitude}</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="span6">
+				<div class="accordion" id="accordion2">
+					<div py:if="response['pwstations']" class="accordion-group">
+						<div class="accordion-heading"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">Personal Weather Stations</a></div>
+						<div id="collapseTwo" class="accordion-body collapse in" style="height: auto; ">
+							<div class="accordion-inner"> 
+								<table>
+									<tr>
+										<th>Station ID</th>
+										<th>Distance (in km)</th>
+									</tr>			
+									<tr py:for="pws in response['pwstations']">
+										<td>${pws.stationid}</td>
+										<td>${pws.distance}</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> <!-- row -->
+	</div> <!-- container -->
   </body>
 </html>

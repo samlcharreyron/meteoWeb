@@ -17,7 +17,7 @@ class Root(object):
 		self.response = {}		
 		
 	@cherrypy.expose
-	@template.output('submit.html')
+	@template.output('index.html')
 	def index(self, cancel=False, **data):
 		if cherrypy.request.method == 'POST':
 			form = RequestForm()
@@ -30,21 +30,31 @@ class Root(object):
 				
 				#geolookup request
 				try:
-					self.data['response'] = GeoLookup(request.latitude,request.longitude).toModel()
-					raise cherrypy.HTTPRedirect('/station')
+					response = GeoLookup(request.latitude,request.longitude).toModel()
+					self.data['response'] = response
+					coordinates = {'latitude':request.latitude,'longitude':request.longitude}
+					errors = {}
+					flasherrors = ""
+					#raise cherrypy.HTTPRedirect('/station')
 				except GeoLookupError as ers:
 					flasherrors = "Unable to perform search for this location"
 					errors = {}
+					coordinates = {}
+					response = {}
 					#raise cherrypy.HTTPRedirect('/')
 				
 			except Invalid, e:
 				errors = e.unpack_errors()
-				flasherrors = "FLSHerrors" 
+				flasherrors = ""
+				coordinates = {}
+				response = {}
 		else:
 			errors = {}
-			flasherrors = "FLSHNOTPOST"
+			flasherrors = ""
+			coordinates = {}
+			response = {}
 			
-		return template.render(errors=errors,flasherrors=flasherrors) | HTMLFormFiller(data=data)
+		return template.render(errors=errors,flasherrors=flasherrors,coordinates=coordinates,response=response) | HTMLFormFiller(data=data)
 	
 	@cherrypy.expose
 	@template.output('station.html')
