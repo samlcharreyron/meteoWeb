@@ -11,10 +11,13 @@ class RequestForm(Schema):
 
 		
 	# To implement: validate with regex
-	latitude = validators.Regex(regex=LATREGEX)
-	longitude = validators.Regex(regex=LONREGEX)
-	dateS = validators.UnicodeString(not_empty=True)
-	dateE = validators.UnicodeString(not_empty=True)
+	#latitude = validators.Regex(regex=LATREGEX)
+	#longitude = validators.Regex(regex=LONREGEX)
+	
+	latitude 	= validators.UnicodeString(not_empty=True)
+	longitude 	= validators.UnicodeString(not_empty=True)
+	dateS 		= validators.UnicodeString(not_empty=True)
+	dateE 		= validators.UnicodeString(not_empty=True)
 	
 	
 		
