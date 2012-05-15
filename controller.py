@@ -35,13 +35,11 @@ class Root(object):
 					coordinates = {'latitude':request.latitude,'longitude':request.longitude}
 					errors = {}
 					flasherrors = ""
-					#raise cherrypy.HTTPRedirect('/station')
 				except GeoLookupError as ers:
 					flasherrors = "Unable to perform search for this location"
 					errors = {}
 					coordinates = {}
 					response = {}
-					#raise cherrypy.HTTPRedirect('/')
 				
 			except Invalid, e:
 				errors = e.unpack_errors()
@@ -64,7 +62,7 @@ class Root(object):
 	@cherrypy.expose
 	@template.output('test.html')
 	def test(self,cancel=False):
-		return "template.render()"
+		return template.render()
 
 def main(filename):
 				
@@ -102,6 +100,10 @@ def main(filename):
 				'/static/js': {
 					'tools.staticdir.on': True,
 					'tools.staticdir.dir': 'static/js'
+				},
+				'/static/img': {
+					'tools.staticdir.on': True,
+					'tools.staticdir.dir': 'static/img'
 				}
 		})
 		

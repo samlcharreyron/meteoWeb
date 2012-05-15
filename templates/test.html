@@ -1,13 +1,47 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:py="http://genshi.edgewall.org/" py:strip="">
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
 	<head>
 		<title>Test Page</title>
+		<link rel="stylesheet" type="text/css" media="all" href="static/css/bootstrap.css" />
+		<style type="text/css">
+				html, body, #map_canvas {
+				max-width: none;
+		        margin: 0;
+		        padding: 0;
+		        height: 100%;
+		      }
+				#map_canvas img {
+					max-width: none;
+				}
+		</style>
+		<script type="text/javascript"
+		      src="https://maps.googleapis.com/maps/api/js?sensor=false">
+		</script>
+		<script type="text/javascript">
+			  <!--
+			  var map;
+			  var marker;
+			  var latitude;
+			  var longitude;
+
+		    function initialize() {
+				var latlng = new google.maps.LatLng(37.776289,-122.395234);
+		        var myOptions = {
+		          center: latlng,
+		          zoom: 10,
+		          mapTypeId: google.maps.MapTypeId.ROADMAP
+		        };
+
+				map = new google.maps.Map(document.getElementById("map_canvas"),
+		            myOptions);
+				marker = new google.maps.Marker({position:latlng,map:map});
+				}
+				-->
+		</script>
 	</head>
-	<body>
-		<div class="page-header">
-			<h1>Test Page</h1>
-			<p>This page is used to test redirects in CherryPy.</p>
-		</div> <!-- App introduction -->
+	<body onload="initialize()">
+		<div class="span4" id="map_canvas" style="width: 480px; height: 300px">Map</div>
 	</body>
 </html>

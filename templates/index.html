@@ -9,10 +9,12 @@
       body {
         padding-top: 	60px;
 		height: 100%; margin: 0; padding: 0
-		#map_canvas { height: 100% }
-      }
-    
+		}
+		
+		#map_canvas img { max-width: none }
+      
     </style>
+	
 	<!-- Google Maps API -->
 	<script type="text/javascript"
 	      src="https://maps.googleapis.com/maps/api/js?sensor=false">
@@ -24,7 +26,7 @@
 		  var latitude;
 		  var longitude;
 		
-	      function initialize() {
+	    function initialize() {
 			var latlng = new google.maps.LatLng(document.getElementById("latitude").value,document.getElementById("longitude").value);
 	        var myOptions = {
 	          center: latlng,
@@ -44,8 +46,10 @@
 			};
 		
 		function addMarkers() {
-			var airportLatitudes = $( "td.airport-latitude");
-			var airportLongitudes = $( "td.airport-longitude");
+			var airportLatitudes 	= $( "td.airport-latitude");
+			var airportLongitudes 	= $( "td.airport-longitude");
+			var airportCities 		= $( "td.airport-city");
+			var airportIcaos 		= $( "td.airport-icao");
 			var ll;
 			var mark;
 			// Create our "tiny" marker icon
@@ -53,18 +57,30 @@
 			
 			for (i=0; i< airportLatitudes.length ;i++) {
 				ll = new google.maps.LatLng(airportLatitudes[i].innerHTML,airportLongitudes[i].innerHTML);
-				mark = new google.maps.Marker({position:ll,map:map,icon:blueIcon});
+				mark = new google.maps.Marker({	position:ll,
+												map:map,
+												icon:blueIcon,
+												animation: google.maps.Animation.DROP,
+											});
+				attachMessage(mark,ll,airportCities[i].innerHTML,airportIcaos[i].innerHTML)
 			}
-
-			
 		}
-			
-			
+		
+		function attachMessage(marker,ll,city,icao) {
+		  var message = "<div><h3>"+city+" Airport Weather Station</h3></div>"+"<table><tr><th>ICAO code</th><th>Latitude</th><th>Longitude</th></tr>"+"<tr><td>"+icao+"<td>"+ll.lat().toString().match(/(-?\d{1,2}(\.\d{1,6})?)/)[0]+"</td><td>"+ll.lng().toString().match(/(-?\d{1,3}(\.\d{1,6})?)/)[0]+"</td></tr></table>";
+		  var infowindow = new google.maps.InfoWindow(
+		      { content: message,
+		        size: new google.maps.Size(50,50)
+		      });
+		  google.maps.event.addListener(marker, 'click', function() {
+		    infowindow.open(map,marker);
+		  });
+		}	
 		
 		google.maps.event.addDomListener(document.getElementById("coordinates"), 'load', recenter());
 	    
-	-->
-			
+	-->	
+	
 	</script>
   </head>
   <body onload="initialize()">
@@ -87,13 +103,13 @@
 					<label for="longitude">Longitude:</label>
 						<input type="text" class="span3" placeholder="Type something" id="longitude" name="longitude" />
 						<span py:if="'longitude' in errors" class="error">${errors.longitude}</span>
-			        <label for="dateS">Start Date:</label>
-						<input type="text" class="span3" placeholder="Type something" id="dateS" name="dateS" />
+					<label for="dateS">Start Date:</label>
+						<input type="text" class="span3" value="02/16/2012" date-date-format="mm/dd/yyyy" id="dateS" name="dateS" />
 						<span py:if="'dateS' in errors" class="error">${errors.dateS}</span>
 			        <label for="dateE">End Date:</label>
-						<input type="text" class="span3" placeholder="Type something" name="dateE" />
+						<input type="text" class="span3" value="02/16/2012" date-date-format="mm/dd/yyyy" id="dateE" name="dateE" />
 						<span py:if="'dateE' in errors" class="error">${errors.dateE}</span>
-			          <input class="btn btn-primary" type="submit" value="Search"/>
+					<input class="btn btn-primary span3" type="submit" value="Search" style="margin-top:10px;margin-left:auto"/>
 			   	</form>
 			</div>
 			<div py:if="coordinates" class="span8" id="coordinates">
@@ -104,8 +120,10 @@
 			<div class="span6">
 				<div class="accordion" id="accordion2">
 					<div py:if="response['airports']" class="accordion-group">
-						<div class="accordion-heading"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">Airport Weather Stations</a></div>
-						<div id="collapseOne" class="accordion-body collapse in" style="height: auto; ">
+						<div class="accordion-heading">
+							<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">Airport Weather Stations</a>
+						</div>
+						<div id="collapseOne" class="accordion-body collapse" style="height: auto; ">
 							<div class="accordion-inner"> 
 								<table>
 									<tr>
@@ -115,8 +133,8 @@
 										<th>Longitude</th>
 									</tr>			
 									<tr py:for="airport in response['airports']">
-										<td>${airport.city}</td>
-										<td>${airport.icao}</td>
+										<td class="airport-city">${airport.city}</td>
+										<td class="airport-icao">${airport.icao}</td>
 										<td class="airport-latitude">${airport.latitude}</td>
 										<td class="airport-longitude">${airport.longitude}</td>
 									</tr>
@@ -130,8 +148,10 @@
 			<div class="span6">
 				<div class="accordion" id="accordion2">
 					<div py:if="response['pwstations']" class="accordion-group">
-						<div class="accordion-heading"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">Personal Weather Stations</a></div>
-						<div id="collapseTwo" class="accordion-body collapse in" style="height: auto; ">
+						<div class="accordion-heading">
+							<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">Personal Weather Stations</a>
+						</div>
+						<div id="collapseTwo" class="accordion-body collapse" style="height: auto; ">
 							<div class="accordion-inner"> 
 								<table>
 									<tr>
